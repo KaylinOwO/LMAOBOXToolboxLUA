@@ -1,6 +1,7 @@
 # LMAOBOX Toolbox LUA
-A set of tools/features for lbox via the new LUA API. **WIP**
-Will be adding as much as we can think of/am capable of when we have the time to spare.
+A set of tools/features for lbox via the new LUA API. **WIP** <br />
+Will be adding as much as we can think of/am capable of when we have the time to spare.  <br />
+Beware the menu code is a god awful mess for the time being.
 
 # Features
 Plyr Chams - The Nitro material is a replication of old Nitro chams (example: https://youtu.be/aLLKpvHxZBQ). The Shiny material is a version that's...shiny...
