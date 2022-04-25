@@ -1,19 +1,28 @@
 
+client.RemoveConVarProtection( "tf_viewmodels_offset_override")
+client.RemoveConVarProtection( "cl_wpn_sway_interp")
+
 ------------------------------------------------ VARIABLES ------------------------------------------------
 
-local TahomaBold = draw.CreateFont("Tahoma Bold", 14, 700 , FONTFLAG_OUTLINE | FONTFLAG_DROPSHADOW)
+-- Menu --
 local MenuSelection = 0
-local PlayerChams = 1
+local PlayerChams = 1   
 local HandChams = 2
 local IgnoreZ = false
+local AutoMelee = true
 local ViewmodelX = 12
 local ViewmodelY = 7
 local ViewmodelZ = -4
 local ViewmodelSway = 75
+
+-- Other -- 
+local TahomaBold = draw.CreateFont("Tahoma Bold", 14, 700 , FONTFLAG_OUTLINE | FONTFLAG_DROPSHADOW)
 local CurrentFPS = 0
 local ServerTickRate = 0
 local PlayerPing = 0
-
+local ShouldBackupMelee = true
+local AimKey = 0
+local AutoShoot = 0
 
 ------------------------------------------------ VARIABLES ------------------------------------------------
 
@@ -22,7 +31,7 @@ local PlayerPing = 0
 local CMoveEntities = {}
 local DrawEntities = {}
 
-function CacheEntities(Entities) -- Unsure if caching entities has any form of performance benefit in this case but it's definitely more efficient coding wise :D
+local function CacheEntities(Entities) -- Unsure if caching entities has any form of performance benefit in this case but it's definitely more efficient coding wise :D
     local players = entities.FindByClass("CTFPlayer")
     for k, pPlayer in pairs(players) do
         if (not(pPlayer:IsValid() and not(pPlayer:IsDormant()) and pPlayer:IsAlive())) then goto continue end
@@ -33,7 +42,7 @@ function CacheEntities(Entities) -- Unsure if caching entities has any form of p
     end
 end
 
-function ClearCachedEntities(Entities)
+local function ClearCachedEntities(Entities)
     for k,v in pairs(Entities) do Entities[k] = nil end
 end
 
@@ -77,14 +86,12 @@ NitroMaterial:SetMaterialVarFlag( MATERIAL_VAR_IGNOREZ, IgnoreZ )
 ShineMaterial:SetMaterialVarFlag( MATERIAL_VAR_IGNOREZ, IgnoreZ )
 
 local IgnoreZSet = false 
-function CallChams(pLocal, DrawModelContext)
+local function CallChams(pLocal, DrawModelContext)
     local pEntity = DrawModelContext:GetEntity()
-    local pWeapon = pEntity
     if (pEntity and pEntity:IsValid() and not(pEntity:IsDormant())) then
         if (not(IgnoreZSet == IgnoreZ)) then 
             NitroMaterial:SetMaterialVarFlag( MATERIAL_VAR_IGNOREZ, IgnoreZ )
             ShineMaterial:SetMaterialVarFlag( MATERIAL_VAR_IGNOREZ, IgnoreZ )
-            RegularMaterial:SetMaterialVarFlag( MATERIAL_VAR_IGNOREZ, IgnoreZ )
             IgnoreZSet = IgnoreZ
         end
 
@@ -95,13 +102,53 @@ function CallChams(pLocal, DrawModelContext)
 
         if (PlayerChams > 0 and not(pEntity:GetTeamNumber() == pLocal:GetTeamNumber())) then
             if ( (pEntity:IsPlayer() and pEntity:IsAlive()) or pEntity:IsWeapon() ) then
+                gui.SetValue("colored players", 0)
                 DrawModelContext:ForcedMaterialOverride ( (PlayerChams == 2) and ShineMaterial or NitroMaterial ) 
             end
         end
+
+
     end   
 end
 
 ------------------------------------------------ CHAMS ------------------------------------------------
+
+------------------------------------------------ MISC ------------------------------------------------
+
+local function CallAutoMelee(pLocal)
+    if (not(AutoMelee)) then
+        if ( AutoShoot ~= gui.GetValue("auto shoot") ) then
+            gui.SetValue("aim key", AimKey)
+            gui.SetValue("auto shoot", AutoShoot)
+
+            AimKey = gui.GetValue("aim key")
+            AutoShoot = gui.GetValue("auto shoot")
+        end
+        return 
+    end
+    
+    if (ShouldBackupMelee) then
+         AimKey = gui.GetValue("aim key")
+         AutoShoot = gui.GetValue("auto shoot")
+    end
+
+     local pWeapon = pLocal:GetPropEntity( "m_hActiveWeapon" )
+     if (pWeapon and pWeapon:IsValid()) then
+         if (pWeapon:IsMeleeWeapon()) then
+             ShouldBackupMelee = false
+             gui.SetValue("aim key", 0)
+             gui.SetValue("auto shoot", 1)
+         else
+             if (not(ShouldBackupMelee)) then
+                 gui.SetValue("aim key", AimKey)
+                 gui.SetValue("auto shoot", AutoShoot)
+                 ShouldBackupMelee = true
+             end
+         end
+     end
+end
+
+------------------------------------------------ MISC ------------------------------------------------
 
 ------------------------------------------------ MENU ------------------------------------------------
 
@@ -109,7 +156,7 @@ WHITE = {R = 255, G = 255, B = 255, A = 255}
 BLUE = {R = 30, G = 144, B = 255, A = 255}
 YELLOW = {R = 255, G = 255, B = 0, A = 255}
 
-function ButtonReleased(button) -- Can't believe I had to paste this shit lmaooo. c: https://github.com/lnx00/Lmaobox-LUA/blob/7f0c6296f6a0aba8a1c04e5b43cf956bf2b994d7/FreeMenu.lua#L55
+local function ButtonReleased(button) -- Can't believe I had to paste this shit lmaooo. c: https://github.com/lnx00/Lmaobox-LUA/blob/7f0c6296f6a0aba8a1c04e5b43cf956bf2b994d7/FreeMenu.lua#L55
     if input.IsButtonDown(button) and button ~= LastButton then
         LastButton = button
         AnyButtonDown = true
@@ -128,7 +175,7 @@ function ButtonReleased(button) -- Can't believe I had to paste this shit lmaooo
     return false
 end
 
-function ChamsType(ChamVar)
+local function ChamsType(ChamVar)
 
     if (ChamVar == 1) then
         return "NITRO"
@@ -139,7 +186,7 @@ function ChamsType(ChamVar)
     return "OFF"
 end
 
-function Text(x, y, string, color)
+local function Text(x, y, string, color)
     draw.SetFont(TahomaBold)
     draw.Color(color.R, color.G, color.B, color.A) 
     draw.Text(x, y, string)
@@ -156,9 +203,13 @@ local function Menu()
     Text(300, 35, "Hello ReD :)", YELLOW);
 	
 	if globals.FrameCount() % 50 == 0 then
-        ServerTickRate = math.floor(1 / globals.TickInterval())
-        local pLocal = entities.GetLocalPlayer();
-	if (not(pLocal and pLocal:IsValid() and not(pLocal:IsDormant()) and pLocal:IsAlive())) then return end PlayerPing = math.floor(clientstate.GetLatencyOut() * 1000)
+        if (pLocal and pLocal:IsValid() and not(pLocal:IsDormant())) then
+            ServerTickRate = math.floor(1 / globals.TickInterval())
+            PlayerPing = math.floor(clientstate.GetLatencyOut() * 1000)
+        else
+            ServerTickRate = 0
+            PlayerPing = 0
+        end
 	end
 	Text(450, 65, "FrameRate:  " .. CurrentFPS .."",  WHITE);
 	Text(450, 80, "Ticks:  " .. ServerTickRate .."",  WHITE);
@@ -166,38 +217,43 @@ local function Menu()
   
     iY = 60;
 
-    Text(300, iY + 5, ((MenuSelection <= 0) and ">> Plyr Chams:" or "Plyr Chams:"), WHITE);
+    Text(300, iY + 5, ((MenuSelection <= MenuOptions) and ">> Plyr Chams:" or "Plyr Chams:"), WHITE);
     Text(400, 50 + (Multiplier), ChamsType(PlayerChams), (PlayerChams > 0) and BLUE or WHITE);
 
     MenuOptions = MenuOptions + 1; iY = iY + 15;
 
-    Text(300, iY + 5, ((MenuSelection == 1) and ">> VM Chams:" or "VM Chams:"), WHITE);
+    Text(300, iY + 5, ((MenuSelection == MenuOptions) and ">> VM Chams:" or "VM Chams:"), WHITE);
     Text(400, 50 + (Multiplier * (MenuOptions + 1)), ChamsType(HandChams), (HandChams > 0) and BLUE or WHITE);
 
     MenuOptions = MenuOptions + 1; iY = iY + 15;
 
-    Text(300, iY + 5, ((MenuSelection == 2) and ">> IgnoreZ:" or "IgnoreZ:"), WHITE);
+    Text(300, iY + 5, ((MenuSelection == MenuOptions) and ">> IgnoreZ:" or "IgnoreZ:"), WHITE);
     Text(400, 50 + (Multiplier * (MenuOptions + 1)), IgnoreZ and "ON" or "OFF", IgnoreZ and BLUE or WHITE);
 
     MenuOptions = MenuOptions + 1; iY = iY + 15;
 
-    Text(300, iY + 5, ((MenuSelection == 3) and ">> VM X:" or "VM X:"), WHITE);
+    Text(300, iY + 5, ((MenuSelection == MenuOptions) and ">> VM X:" or "VM X:"), WHITE);
     Text(400, 50 + (Multiplier * (MenuOptions + 1)), tostring(ViewmodelX), not(ViewmodelX == 0) and BLUE or WHITE);
 
     MenuOptions = MenuOptions + 1; iY = iY + 15;
 
-    Text(300, iY + 5, ((MenuSelection == 4) and ">> VM Y:" or "VM Y:"), WHITE);
+    Text(300, iY + 5, ((MenuSelection == MenuOptions) and ">> VM Y:" or "VM Y:"), WHITE);
     Text(400, 50 + (Multiplier * (MenuOptions + 1)), tostring(ViewmodelY), not(ViewmodelY == 0) and BLUE or WHITE);
 
     MenuOptions = MenuOptions + 1; iY = iY + 15;
 
-    Text(300, iY + 5, ((MenuSelection == 5) and ">> VM Z:" or "VM Z:"), WHITE);
+    Text(300, iY + 5, ((MenuSelection == MenuOptions) and ">> VM Z:" or "VM Z:"), WHITE);
     Text(400, 50 + (Multiplier * (MenuOptions + 1)), tostring(ViewmodelZ), not(ViewmodelZ == 0) and BLUE or WHITE);
 
     MenuOptions = MenuOptions + 1; iY = iY + 15;
 
-    Text(300, iY + 5, ((MenuSelection == 6) and ">> VM Sway:" or "VM Sway:"), WHITE);
+    Text(300, iY + 5, ((MenuSelection == MenuOptions) and ">> VM Sway:" or "VM Sway:"), WHITE);
     Text(400, 50 + (Multiplier * (MenuOptions + 1)), tostring(ViewmodelSway), not(ViewmodelSway == 0) and BLUE or WHITE);
+
+    MenuOptions = MenuOptions + 1; iY = iY + 15;
+
+    Text(300, iY + 5, ((MenuSelection == MenuOptions) and ">> Auto Melee:" or "Auto Melee:"), WHITE);
+    Text(400, 50 + (Multiplier * (MenuOptions + 1)),    AutoMelee  and "ON" or "OFF", AutoMelee and BLUE or WHITE);
 
     if (ButtonReleased(KEY_UP)) then MenuSelection = MenuSelection - 1 elseif (ButtonReleased(KEY_DOWN)) then MenuSelection = MenuSelection + 1; end
     if (MenuSelection == 0) then if (ButtonReleased(KEY_LEFT)) then PlayerChams = PlayerChams - 1 elseif (ButtonReleased(KEY_RIGHT)) then PlayerChams = PlayerChams + 1; end end
@@ -207,6 +263,7 @@ local function Menu()
     if (MenuSelection == 4) then if (ButtonReleased(KEY_LEFT)) then ViewmodelY = ViewmodelY - 1 elseif (ButtonReleased(KEY_RIGHT)) then ViewmodelY = ViewmodelY + 1; end end
     if (MenuSelection == 5) then if (ButtonReleased(KEY_LEFT)) then ViewmodelZ = ViewmodelZ - 1 elseif (ButtonReleased(KEY_RIGHT)) then ViewmodelZ = ViewmodelZ + 1; end end
     if (MenuSelection == 6) then if (ButtonReleased(KEY_LEFT)) then ViewmodelSway = ViewmodelSway - 1 elseif (ButtonReleased(KEY_RIGHT)) then ViewmodelSway = ViewmodelSway + 1; end end
+    if (MenuSelection == 7) then if (ButtonReleased(KEY_LEFT)) then AutoMelee = false elseif (ButtonReleased(KEY_RIGHT)) then AutoMelee = true; end end
 
     if (MenuSelection > MenuOptions) then MenuSelection = 0 elseif (MenuSelection < 0) then MenuSelection = MenuOptions end
     if (PlayerChams > 2) then PlayerChams = 0 elseif (PlayerChams < 0) then PlayerChams = 2 end
@@ -221,10 +278,19 @@ end
 
 ------------------------------------------------ HOOKS ------------------------------------------------
 
-
 local function CreateMoveFunctions(pCmd)
+
     local pLocal = entities.GetLocalPlayer();
-    if (not(pLocal and pLocal:IsValid() and not(pLocal:IsDormant()) and pLocal:IsAlive())) then return end
+    if (not(pLocal and pLocal:IsValid() and not(pLocal:IsDormant()) and pLocal:IsAlive())) then
+        if ( AutoShoot ~= gui.GetValue("auto shoot") ) then
+            gui.SetValue("aim key", AimKey)
+            gui.SetValue("auto shoot", AutoShoot)
+
+            AimKey = gui.GetValue("aim key")
+            AutoShoot = gui.GetValue("auto shoot")
+        end
+        return 
+    end
 
     CurrentFPS = math.floor(1 / globals.FrameTime())
 
@@ -238,8 +304,11 @@ local function CreateMoveFunctions(pCmd)
     --]]
 
     ClearCachedEntities(CMoveEntities)
-    
 
+    CallAutoMelee(pLocal)
+
+    client.SetConVar( "tf_viewmodels_offset_override", ViewmodelX .. " " .. ViewmodelY .. " " .. ViewmodelZ )
+    client.SetConVar( "cl_wpn_sway_interp", (ViewmodelSway / 1000)) -- love u spook c: https://www.unknowncheats.me/forum/3290406-post6.html
 end
 
 local function OnDrawModel( DrawModelContext )
@@ -250,16 +319,17 @@ local function OnDrawModel( DrawModelContext )
 end
 
 local function DrawFunctions()
-    Menu()
-    
     local pLocal = entities.GetLocalPlayer();
-    if (not(pLocal and pLocal:IsValid() and not(pLocal:IsDormant()) and pLocal:IsAlive())) then return end
 
-    client.RemoveConVarProtection( "tf_viewmodels_offset_override")
-    client.RemoveConVarProtection( "cl_wpn_sway_interp")
+    Menu(pLocal)
 
-    client.SetConVar( "tf_viewmodels_offset_override", ViewmodelX .. " " .. ViewmodelY .. " " .. ViewmodelZ )
-    client.SetConVar( "cl_wpn_sway_interp", (ViewmodelSway / 1000)) -- love u spook c: https://www.unknowncheats.me/forum/3290406-post6.html
+    if (not(pLocal and pLocal:IsValid() and not(pLocal:IsDormant()))) then return end
+
+    CacheEntities(DrawEntities)
+
+
+
+    ClearCachedEntities(DrawEntities)
 end
 
 
