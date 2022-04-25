@@ -4,8 +4,8 @@ client.RemoveConVarProtection( "cl_wpn_sway_interp")
 
 ------------------------------------------------ VARIABLES ------------------------------------------------
 
--- Menu --
-local MenuSelection = 0
+-- Vars --
+
 local PlayerChams = 1   
 local HandChams = 2
 local IgnoreZ = false
@@ -17,6 +17,7 @@ local ViewmodelSway = 75
 
 -- Other -- 
 local TahomaBold = draw.CreateFont("Tahoma Bold", 14, 700 , FONTFLAG_OUTLINE | FONTFLAG_DROPSHADOW)
+local MenuSelection = 0
 local CurrentFPS = 0
 local ServerTickRate = 0
 local PlayerPing = 0
