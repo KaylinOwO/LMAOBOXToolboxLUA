@@ -67,8 +67,11 @@ function CallChams(pLocal, DrawModelContext)
             DrawModelContext:ForcedMaterialOverride ( (HandChams == 2) and ShineMaterial or NitroMaterial ) 
         end
 
+
         if (PlayerChams > 0 and not(pEntity:GetTeamNumber() == pLocal:GetTeamNumber())) then
-            DrawModelContext:ForcedMaterialOverride ( (PlayerChams == 2) and ShineMaterial or NitroMaterial ) 
+            if ( (pEntity:IsPlayer() and pEntity:IsAlive()) or pEntity:IsWeapon() ) then
+                DrawModelContext:ForcedMaterialOverride ( (PlayerChams == 2) and ShineMaterial or NitroMaterial ) 
+            end
         end
     end   
 end
