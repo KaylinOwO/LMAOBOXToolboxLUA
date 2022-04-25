@@ -10,6 +10,7 @@ local ViewmodelX = 12
 local ViewmodelY = 7
 local ViewmodelZ = -4
 local ViewmodelSway = 75
+local current_fps = 0
 
 ------------------------------------------------ VARIABLES ------------------------------------------------
 
@@ -123,7 +124,14 @@ local function Menu()
 
     Text(300, 20, "Hello Callie :)", YELLOW);
     Text(300, 35, "Hello ReD :)", YELLOW);
-
+  
+  	if globals.FrameCount() % 50 == 0 then
+    current_fps = math.floor(1 / globals.FrameTime())
+	  server_tick = math.floor(1 / globals.TickInterval())
+	  end
+	  Text(450, 65, "FrameRate:  " .. current_fps .."",  WHITE);
+	  Text(450, 80, "Ticks:  " .. server_tick .."",  WHITE);
+  
     iY = 60;
 
     Text(300, iY + 5, ((MenuSelection <= 0) and ">> Plyr Chams:" or "Plyr Chams:"), WHITE);
