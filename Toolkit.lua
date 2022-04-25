@@ -10,9 +10,34 @@ local ViewmodelX = 12
 local ViewmodelY = 7
 local ViewmodelZ = -4
 local ViewmodelSway = 75
-local current_fps = 0
+local CurrentFPS = 0
+local ServerTickRate = 0
+local PlayerPing = 0
+
 
 ------------------------------------------------ VARIABLES ------------------------------------------------
+
+------------------------------------------------ ENTITY CACHE ------------------------------------------------
+
+local CMoveEntities = {}
+local DrawEntities = {}
+
+function CacheEntities(Entities) -- Unsure if caching entities has any form of performance benefit in this case but it's definitely more efficient coding wise :D
+    local players = entities.FindByClass("CTFPlayer")
+    for k, pPlayer in pairs(players) do
+        if (not(pPlayer:IsValid() and not(pPlayer:IsDormant()) and pPlayer:IsAlive())) then goto continue end
+
+        table.insert(Entities, pPlayer)
+
+        ::continue::
+    end
+end
+
+function ClearCachedEntities(Entities)
+    for k,v in pairs(Entities) do Entities[k] = nil end
+end
+
+------------------------------------------------ ENTITY CACHE ------------------------------------------------
 
 ------------------------------------------------ CHAMS ------------------------------------------------
 
@@ -123,19 +148,20 @@ end
 local function Menu()
     local iY = 0
     local MenuOptions = 0
-    local Multiplier = 15
+    local Multiplier = 15 
 
     Text(20, 55 + 5, "Callie's Toolkit", {R = 213, G = 119, B = 123, A = 255});
 
     Text(300, 20, "Hello Callie :)", YELLOW);
     Text(300, 35, "Hello ReD :)", YELLOW);
-  
-    if globals.FrameCount() % 50 == 0 then
-    current_fps = math.floor(1 / globals.FrameTime())
-    server_tick = math.floor(1 / globals.TickInterval())
-    end
-    Text(450, 65, "FrameRate:  " .. current_fps .."",  WHITE);
-    Text(450, 80, "Ticks:  " .. server_tick .."",  WHITE);
+	
+	if globals.FrameCount() % 50 == 0 then
+        ServerTickRate = math.floor(1 / globals.TickInterval())
+        PlayerPing = math.floor(clientstate.GetLatencyOut() * 1000)
+	end
+	Text(450, 65, "FrameRate:  " .. CurrentFPS .."",  WHITE);
+	Text(450, 80, "Ticks:  " .. ServerTickRate .."",  WHITE);
+	Text(450, 95, "Ping:  " .. PlayerPing .."",  WHITE);
   
     iY = 60;
 
@@ -194,21 +220,30 @@ end
 
 ------------------------------------------------ HOOKS ------------------------------------------------
 
+
 local function CreateMoveFunctions(pCmd)
     local pLocal = entities.GetLocalPlayer();
-    if (not(pLocal and pLocal:IsValid() and pLocal:IsAlive())) then return end
+    if (not(pLocal and pLocal:IsValid() and not(pLocal:IsDormant()) and pLocal:IsAlive())) then return end
 
-    local pWeapon = pLocal:GetPropEntity( "m_hActiveWeapon" )
-    local m_nTickBase = pLocal:GetPropFloat( "m_nTickBase" )
-    local m_vecVelocity = pLocal:EstimateAbsVelocity()
-    local AngleVelocity =  m_vecVelocity:Angles()
-    local m_flLastFireTime = pWeapon:GetPropFloat( "m_flLastFireTime" )
+    CurrentFPS = math.floor(1 / globals.FrameTime())
+
+    CacheEntities(CMoveEntities)
+
+    --[[ Example usage of Entity Cache
+        for k,v in pairs(CMoveEntities) do
+            local pEntity = CMoveEntities[k]
+            print(pEntity:GetName() .. " has " .. pEntity:GetHealth() .. "HP")
+        end
+    --]]
+
+    ClearCachedEntities(CMoveEntities)
+    
 
 end
 
 local function OnDrawModel( DrawModelContext )
     local pLocal = entities.GetLocalPlayer();
-    if (not(pLocal and pLocal:IsValid() and pLocal:IsAlive())) then return end
+    if (not(pLocal and pLocal:IsValid() and not(pLocal:IsDormant()) and pLocal:IsAlive())) then return end
 
     CallChams(pLocal, DrawModelContext)
 end
@@ -217,7 +252,7 @@ local function DrawFunctions()
     Menu()
     
     local pLocal = entities.GetLocalPlayer();
-    if (not(pLocal and pLocal:IsValid() and pLocal:IsAlive())) then return end
+    if (not(pLocal and pLocal:IsValid() and not(pLocal:IsDormant()) and pLocal:IsAlive())) then return end
 
     client.RemoveConVarProtection( "tf_viewmodels_offset_override")
     client.RemoveConVarProtection( "cl_wpn_sway_interp")
