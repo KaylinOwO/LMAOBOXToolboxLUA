@@ -52,15 +52,20 @@ end
 
 NitroMaterial = materials.Create( "NitroMaterial", [["VertexLitGeneric"
 {
-  $basetexture "vgui/white_additive"
-  $bumpmap "vgui/white_additive"
-  $color2 "[30 0.5 0.5]"
+    $basetexture "vgui/white_additive"
+    $bumpmap "models/player/shared/shared_normal"
 
-  $selfillum "1"
-  $selfillumfresnel "1"
-  $selfillumfresnelminmaxexp "[0.1 0.2 0.3]"
-  $selfillumtint "[0 0.3 0.6]"
+    $envmap "skybox/sky_dustbowl_01"
+    $envmapfresnel "1"
+    $phong "1"
+    $phongfresnelranges "[0 0.05 0.1]"
 
+    $selfillum "1"
+    $selfillumfresnel "1"
+    $selfillumfresnelminmaxexp "[0.4999 0.5 0]"
+    $envmaptint "[ 0 0 0 ]"
+    $selfillumtint "[ 0.03 0.03 0.03 ]"
+    
 }
 ]])
 
@@ -99,9 +104,11 @@ local function CallChams(pLocal, DrawModelContext)
             DrawModelContext:ForcedMaterialOverride ( (HandChams == 2) and ShineMaterial or NitroMaterial ) 
         end
 
+        if (PlayerChams > 0 and (pEntity == pLocal or (pEntity:GetTeamNumber() ~= pLocal:GetTeamNumber()))) then
+            if ( (pEntity:IsPlayer() and pEntity:IsAlive()) or pEntity:IsWeapon()) then
+                NitroMaterial:SetShaderParam( "$envmaptint", (pEntity:GetTeamNumber() == 3 and Vector3(0.05, 0.05, 1) or Vector3(1, 0.05, 0.05)))
+                ShineMaterial:SetShaderParam( "$color2", (pEntity:GetTeamNumber() == 3 and Vector3(0.05, 0.05, 1) or Vector3(1, 0.05, 0.05)))
 
-        if (PlayerChams > 0 and not(pEntity:GetTeamNumber() == pLocal:GetTeamNumber())) then
-            if ( (pEntity:IsPlayer() and pEntity:IsAlive()) or pEntity:IsWeapon() ) then
                 gui.SetValue("colored players", 0)
                 DrawModelContext:ForcedMaterialOverride ( (PlayerChams == 2) and ShineMaterial or NitroMaterial ) 
             end
@@ -276,7 +283,7 @@ end
 
 ------------------------------------------------ MENU ------------------------------------------------
 
------------------------------------------------- HOOKS ------------------------------------------------
+------------------------------------------------ CALLBACKS ------------------------------------------------
 
 local function CreateMoveFunctions(pCmd)
 
@@ -343,4 +350,4 @@ callbacks.Register("Draw", "Toolbox_Draw", DrawFunctions)
 callbacks.Unregister("DrawModel", "Toolbox_DrawModel")
 callbacks.Register( "DrawModel", "Toolbox_DrawModel", OnDrawModel )
 
------------------------------------------------- HOOKS ------------------------------------------------
+------------------------------------------------ CALLBACKS ------------------------------------------------
