@@ -197,7 +197,7 @@ local function Menu()
     local MenuOptions = 0
     local Multiplier = 15 
 
-    Text(20, 55 + 5, "Callie's Toolkit", {R = 213, G = 119, B = 123, A = 255});
+    Text(20, 55 + 5, "Callie's Toolbox", {R = 213, G = 119, B = 123, A = 255});
 
     Text(300, 20, "Hello Callie :)", YELLOW);
     Text(300, 35, "Hello ReD :)", YELLOW);
@@ -334,13 +334,13 @@ end
 
 
 
-callbacks.Unregister("CreateMove", "Toolkit_CreateMove") 
-callbacks.Register("CreateMove", "Toolkit_CreateMove", CreateMoveFunctions)
+callbacks.Unregister("CreateMove", "Toolbox_CreateMove") 
+callbacks.Register("CreateMove", "Toolbox_CreateMove", CreateMoveFunctions)
 
-callbacks.Unregister("Draw", "Toolkit_Draw")
-callbacks.Register("Draw", "Toolkit_Draw", DrawFunctions)
+callbacks.Unregister("Draw", "Toolbox_Draw")
+callbacks.Register("Draw", "Toolbox_Draw", DrawFunctions)
 
-callbacks.Unregister("DrawModel", "Toolkit_DrawModel")
-callbacks.Register( "DrawModel", "Toolkit_DrawModel", OnDrawModel )
+callbacks.Unregister("DrawModel", "Toolbox_DrawModel")
+callbacks.Register( "DrawModel", "Toolbox_DrawModel", OnDrawModel )
 
 ------------------------------------------------ HOOKS ------------------------------------------------
