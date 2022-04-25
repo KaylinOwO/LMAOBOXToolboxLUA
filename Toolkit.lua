@@ -51,22 +51,25 @@ ShineMaterial = materials.Create( "ShineMaterial", [["VertexLitGeneric"
 NitroMaterial:SetMaterialVarFlag( MATERIAL_VAR_IGNOREZ, IgnoreZ )
 ShineMaterial:SetMaterialVarFlag( MATERIAL_VAR_IGNOREZ, IgnoreZ )
 
+local IgnoreZSet = false 
 function CallChams(pLocal, DrawModelContext)
     local pEntity = DrawModelContext:GetEntity()
-    if (pEntity and pEntity:IsValid()) then
+    local pWeapon = pEntity
+    if (pEntity and pEntity:IsValid() and not(pEntity:IsDormant())) then
         if (not(IgnoreZSet == IgnoreZ)) then 
             NitroMaterial:SetMaterialVarFlag( MATERIAL_VAR_IGNOREZ, IgnoreZ )
             ShineMaterial:SetMaterialVarFlag( MATERIAL_VAR_IGNOREZ, IgnoreZ )
+            RegularMaterial:SetMaterialVarFlag( MATERIAL_VAR_IGNOREZ, IgnoreZ )
             IgnoreZSet = IgnoreZ
         end
 
-       
-        if (PlayerChams > 0 and pEntity:IsPlayer() and pEntity:IsAlive() and not(pEntity:GetTeamNumber() == pLocal:GetTeamNumber())) then
-            DrawModelContext:ForcedMaterialOverride ( (PlayerChams == 2) and ShineMaterial or NitroMaterial ) 
+        if (HandChams > 0 and pEntity:GetClass() == "CTFViewModel") then
+            DrawModelContext:ForcedMaterialOverride ( (HandChams == 2) and ShineMaterial or NitroMaterial ) 
         end
 
-        if (pEntity:GetClass() == "CTFViewModel") then
-            DrawModelContext:ForcedMaterialOverride ( (HandChams == 2) and ShineMaterial or NitroMaterial ) 
+        if (PlayerChams > 0 and not(pEntity:GetTeamNumber() == pLocal:GetTeamNumber())) then
+                DrawModelContext:ForcedMaterialOverride ( (PlayerChams == 2) and ShineMaterial or NitroMaterial ) 
+            end
         end
     end   
 end
@@ -201,7 +204,6 @@ local function CreateMoveFunctions(pCmd)
 
 end
 
-local IgnoreZSet = false 
 local function OnDrawModel( DrawModelContext )
     local pLocal = entities.GetLocalPlayer();
     if (not(pLocal and pLocal:IsValid() and pLocal:IsAlive())) then return end
