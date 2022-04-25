@@ -100,15 +100,15 @@ local function CallChams(pLocal, DrawModelContext)
             IgnoreZSet = IgnoreZ
         end
 
+        NitroMaterial:SetShaderParam( "$envmaptint", (pEntity:GetTeamNumber() == 3 and Vector3(0.05, 0.05, 1) or Vector3(1, 0.05, 0.05)))
+        ShineMaterial:SetShaderParam( "$color2", (pEntity:GetTeamNumber() == 3 and Vector3(0.05, 0.05, 1) or Vector3(1, 0.05, 0.05)))
+
         if (HandChams > 0 and pEntity:GetClass() == "CTFViewModel") then
             DrawModelContext:ForcedMaterialOverride ( (HandChams == 2) and ShineMaterial or NitroMaterial ) 
         end
 
         if (PlayerChams > 0 and (pEntity == pLocal or (pEntity:GetTeamNumber() ~= pLocal:GetTeamNumber()))) then
             if ( (pEntity:IsPlayer() and pEntity:IsAlive()) or pEntity:IsWeapon()) then
-                NitroMaterial:SetShaderParam( "$envmaptint", (pEntity:GetTeamNumber() == 3 and Vector3(0.05, 0.05, 1) or Vector3(1, 0.05, 0.05)))
-                ShineMaterial:SetShaderParam( "$color2", (pEntity:GetTeamNumber() == 3 and Vector3(0.05, 0.05, 1) or Vector3(1, 0.05, 0.05)))
-
                 gui.SetValue("colored players", 0)
                 DrawModelContext:ForcedMaterialOverride ( (PlayerChams == 2) and ShineMaterial or NitroMaterial ) 
             end
