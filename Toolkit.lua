@@ -157,7 +157,8 @@ local function Menu()
 	
 	if globals.FrameCount() % 50 == 0 then
         ServerTickRate = math.floor(1 / globals.TickInterval())
-        PlayerPing = math.floor(clientstate.GetLatencyOut() * 1000)
+        local pLocal = entities.GetLocalPlayer();
+	if (not(pLocal and pLocal:IsValid() and not(pLocal:IsDormant()) and pLocal:IsAlive())) then return end PlayerPing = math.floor(clientstate.GetLatencyOut() * 1000)
 	end
 	Text(450, 65, "FrameRate:  " .. CurrentFPS .."",  WHITE);
 	Text(450, 80, "Ticks:  " .. ServerTickRate .."",  WHITE);
