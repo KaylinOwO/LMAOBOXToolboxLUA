@@ -98,6 +98,7 @@ end
 
 local IgnoreZSet = false 
 local function CallChams(pLocal, DrawModelContext)
+    if (client.GetConVar("mat_hdr_level") ~= 2) then NitroMaterial:SetShaderParam( "$phongfresnelranges", Vector3(0, 1, 2)) end
     local pEntity = DrawModelContext:GetEntity()
     if (pEntity and pEntity:IsValid() and not(pEntity:IsDormant())) then
         if (not(IgnoreZSet == IgnoreZ)) then 
