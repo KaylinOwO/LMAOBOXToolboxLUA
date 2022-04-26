@@ -59,7 +59,7 @@ NitroMaterial = materials.Create( "NitroMaterial", [["VertexLitGeneric"
     $envmap "skybox/sky_dustbowl_01"
     $envmapfresnel "1"
     $phong "1"
-    $phongfresnelranges "[0 0.05 0.1]"
+    $phongfresnelranges "[0 1 2]"
 
     $selfillum "1"
     $selfillumfresnel "1"
@@ -98,7 +98,6 @@ end
 
 local IgnoreZSet = false 
 local function CallChams(pLocal, DrawModelContext)
-    if (client.GetConVar("mat_hdr_level") ~= 2) then NitroMaterial:SetShaderParam( "$phongfresnelranges", Vector3(0, 1, 2)) end
     local pEntity = DrawModelContext:GetEntity()
     if (pEntity and pEntity:IsValid() and not(pEntity:IsDormant())) then
         if (not(IgnoreZSet == IgnoreZ)) then 
