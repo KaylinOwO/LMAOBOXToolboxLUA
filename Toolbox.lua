@@ -19,7 +19,7 @@ local ViewmodelSway = 75
 local TahomaBold = draw.CreateFont("Tahoma Bold", 14, 700 , FONTFLAG_OUTLINE | FONTFLAG_DROPSHADOW)
 local MenuSelection = 0
 local CurrentFPS = 0
-local ServerTickRate = 0
+local ServerTicks = 0
 local PlayerPing = 0
 local ShouldBackupMelee = true
 local AimKey = 0
@@ -210,17 +210,8 @@ local function Menu()
     Text(300, 20, "Hello Callie :)", YELLOW);
     Text(300, 35, "Hello ReD :)", YELLOW);
 	
-	if globals.FrameCount() % 50 == 0 then
-        if (pLocal and pLocal:IsValid() and not(pLocal:IsDormant())) then
-            ServerTickRate = math.floor(1 / globals.TickInterval())
-            PlayerPing = math.floor(clientstate.GetLatencyOut() * 1000)
-        else
-            ServerTickRate = 0
-            PlayerPing = 0
-        end
-	end
 	Text(450, 65, "FrameRate:  " .. CurrentFPS .."",  WHITE);
-	Text(450, 80, "Ticks:  " .. ServerTickRate .."",  WHITE);
+	Text(450, 80, "Ticks:  " .. ServerTicks .."",  WHITE);
 	Text(450, 95, "Ping:  " .. PlayerPing .."",  WHITE);
   
     iY = 60;
@@ -301,6 +292,8 @@ local function CreateMoveFunctions(pCmd)
     end
 
     CurrentFPS = math.floor(1 / globals.FrameTime())
+    ServerTicks = math.floor(1 / globals.TickInterval())
+    PlayerPing = math.floor(clientstate.GetLatencyOut() * 1000)
 
     CacheEntities(CMoveEntities)
 
@@ -315,8 +308,13 @@ local function CreateMoveFunctions(pCmd)
 
     CallAutoMelee(pLocal)
 
-    client.SetConVar( "tf_viewmodels_offset_override", ViewmodelX .. " " .. ViewmodelY .. " " .. ViewmodelZ )
-    client.SetConVar( "cl_wpn_sway_interp", (ViewmodelSway / 1000)) -- love u spook c: https://www.unknowncheats.me/forum/3290406-post6.html
+    local VMString =  ViewmodelX .. " " .. ViewmodelY .. " " .. ViewmodelZ 
+    local VMSway = (ViewmodelSway / 1000)
+
+    if (client.GetConVar("tf_viewmodels_offset_override") ~= VMString)
+        client.SetConVar( "tf_viewmodels_offset_override", VMString)
+    if (client.GetConVar("cl_wpn_sway_interp") ~= VMSway)
+        client.SetConVar( "cl_wpn_sway_interp", VMSway) -- love u spook c: https://www.unknowncheats.me/forum/3290406-post6.html
 end
 
 local function OnDrawModel( DrawModelContext )
@@ -340,7 +338,13 @@ local function DrawFunctions()
     ClearCachedEntities(DrawEntities)
 end
 
+local function Unload() -- Let's make sure we don't cause problems for the user on unload :D
+    gui.SetValue("aim key", AimKey)
+    gui.SetValue("auto shoot", AutoShoot)
 
+    client.SetConVar( "tf_viewmodels_offset_override", "0 0 0" )
+    client.SetConVar( "cl_wpn_sway_interp", "0")
+end
 
 callbacks.Unregister("CreateMove", "Toolbox_CreateMove") 
 callbacks.Register("CreateMove", "Toolbox_CreateMove", CreateMoveFunctions)
@@ -350,5 +354,8 @@ callbacks.Register("Draw", "Toolbox_Draw", DrawFunctions)
 
 callbacks.Unregister("DrawModel", "Toolbox_DrawModel")
 callbacks.Register( "DrawModel", "Toolbox_DrawModel", OnDrawModel )
+
+callbacks.Unregister("Unload", "Toolbox_Unload") 
+callbacks.Register("Unload", "Toolbox_Unload", Unload)
 
 ------------------------------------------------ CALLBACKS ------------------------------------------------
