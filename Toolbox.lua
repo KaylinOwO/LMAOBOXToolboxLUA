@@ -311,10 +311,8 @@ local function CreateMoveFunctions(pCmd)
     local VMString =  ViewmodelX .. " " .. ViewmodelY .. " " .. ViewmodelZ 
     local VMSway = (ViewmodelSway / 1000)
 
-    if (client.GetConVar("tf_viewmodels_offset_override") ~= VMString)
-        client.SetConVar( "tf_viewmodels_offset_override", VMString)
-    if (client.GetConVar("cl_wpn_sway_interp") ~= VMSway)
-        client.SetConVar( "cl_wpn_sway_interp", VMSway) -- love u spook c: https://www.unknowncheats.me/forum/3290406-post6.html
+    if (client.GetConVar("tf_viewmodels_offset_override") ~= VMString) then client.SetConVar( "tf_viewmodels_offset_override", VMString) end
+    if (client.GetConVar("cl_wpn_sway_interp") ~= VMSway) then client.SetConVar( "cl_wpn_sway_interp", VMSway) end -- love u spook c: https://www.unknowncheats.me/forum/3290406-post6.html
 end
 
 local function OnDrawModel( DrawModelContext )
