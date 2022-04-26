@@ -91,6 +91,11 @@ ShineMaterial = materials.Create( "ShineMaterial", [["VertexLitGeneric"
 NitroMaterial:SetMaterialVarFlag( MATERIAL_VAR_IGNOREZ, IgnoreZ )
 ShineMaterial:SetMaterialVarFlag( MATERIAL_VAR_IGNOREZ, IgnoreZ )
 
+local function SetTeamColor(Entity)
+    NitroMaterial:SetShaderParam( "$envmaptint", (Entity:GetTeamNumber() == 3 and Vector3(0.05, 0.05, 1) or Vector3(1, 0.05, 0.05)))
+    ShineMaterial:SetShaderParam( "$color2", (Entity:GetTeamNumber() == 3 and Vector3(0.05, 0.05, 1) or Vector3(1, 0.05, 0.05)))
+end
+
 local IgnoreZSet = false 
 local function CallChams(pLocal, DrawModelContext)
     local pEntity = DrawModelContext:GetEntity()
@@ -101,26 +106,30 @@ local function CallChams(pLocal, DrawModelContext)
             IgnoreZSet = IgnoreZ
         end
 
-
+        local PlayerMat =  (PlayerChams == 2) and ShineMaterial or NitroMaterial 
+        local HandMat =  (HandChams == 2) and ShineMaterial or NitroMaterial 
 
         if (HandChams > 0 and pEntity:GetClass() == "CTFViewModel") then
-            NitroMaterial:SetShaderParam( "$envmaptint", (pLocal:GetTeamNumber() == 3 and Vector3(0.05, 0.05, 1) or Vector3(1, 0.05, 0.05)))
-            ShineMaterial:SetShaderParam( "$color2", (pLocal:GetTeamNumber() == 3 and Vector3(0.05, 0.05, 1) or Vector3(1, 0.05, 0.05)))
-
-            DrawModelContext:ForcedMaterialOverride ( (HandChams == 2) and ShineMaterial or NitroMaterial ) 
+            SetTeamColor(pLocal)
+            DrawModelContext:ForcedMaterialOverride(HandMat)
         end
-        
-        if (PlayerChams > 0 and (pEntity == pLocal or (pEntity:GetTeamNumber() ~= pLocal:GetTeamNumber()))) then
-            if ( (pEntity:IsPlayer() and pEntity:IsAlive()) or pEntity:IsWeapon()) then
-                NitroMaterial:SetShaderParam( "$envmaptint", (pEntity:GetTeamNumber() == 3 and Vector3(0.05, 0.05, 1) or Vector3(1, 0.05, 0.05)))
-                ShineMaterial:SetShaderParam( "$color2", (pEntity:GetTeamNumber() == 3 and Vector3(0.05, 0.05, 1) or Vector3(1, 0.05, 0.05)))
 
-                gui.SetValue("colored players", 0)
-                DrawModelContext:ForcedMaterialOverride ( (PlayerChams == 2) and ShineMaterial or NitroMaterial ) 
+        if (PlayerChams > 0) then
+            gui.SetValue("colored players", 0)
+
+            if (pEntity:GetClass() == "CTFWearable") then
+                local OwnerEntity = pEntity:GetPropEntity("m_hOwnerEntity")
+                if (OwnerEntity and OwnerEntity:IsValid() and not(OwnerEntity:IsDormant()) and OwnerEntity:IsAlive() and (OwnerEntity == pLocal or (OwnerEntity:GetTeamNumber() ~= pLocal:GetTeamNumber()))) then
+                    SetTeamColor(OwnerEntity)
+                    DrawModelContext:ForcedMaterialOverride(PlayerMat) 
+                end
+            end
+
+            if (((pEntity:IsPlayer() and pEntity:IsAlive()) or pEntity:IsWeapon()) and (pEntity == pLocal or (pEntity:GetTeamNumber() ~= pLocal:GetTeamNumber()))) then
+                SetTeamColor(pEntity)
+                DrawModelContext:ForcedMaterialOverride(PlayerMat) 
             end
         end
-
-
     end   
 end
 
@@ -322,7 +331,7 @@ end
 
 local function OnDrawModel( DrawModelContext )
     local pLocal = entities.GetLocalPlayer();
-    if (not(pLocal and pLocal:IsValid() and not(pLocal:IsDormant()) and pLocal:IsAlive())) then return end
+    if (not(pLocal and pLocal:IsValid() and not(pLocal:IsDormant()))) then return end
 
     CallChams(pLocal, DrawModelContext)
 end
