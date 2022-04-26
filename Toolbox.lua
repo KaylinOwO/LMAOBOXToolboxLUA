@@ -341,6 +341,8 @@ local function DrawFunctions()
 
     Menu(pLocal)
 
+    if (client.GetConVar("mat_hdr_level") ~= 2) then client.SetConVar( "mat_hdr_level", 2) end -- For some reason the chams fix for HDR < 2 that spook uses didn't work for me, for now I'll just force hdr 2 but if anyone knows what the problem was, telling me would be appreciated :D
+
     if (not(pLocal and pLocal:IsValid() and not(pLocal:IsDormant()))) then return end
 
     CacheEntities(DrawEntities)
