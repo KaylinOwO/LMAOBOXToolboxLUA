@@ -341,7 +341,7 @@ local function Unload() -- Let's make sure we don't cause problems for the user 
     gui.SetValue("auto shoot", AutoShoot)
 
     client.SetConVar( "tf_viewmodels_offset_override", "0 0 0" )
-    client.SetConVar( "cl_wpn_sway_interp", "0")
+    client.SetConVar( "cl_wpn_sway_interp", 0)
 end
 
 callbacks.Unregister("CreateMove", "Toolbox_CreateMove") 
