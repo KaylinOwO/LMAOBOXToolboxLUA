@@ -9,7 +9,7 @@ Plyr & Hand Chams - Nitro material is a replication of old Nitro chams (example:
 VM X, Y, Z - Adjusts the viewmodel offset/position <br />
 VM Sway - Uses cl_wpn_sway_interp to adjust weapon sway <br />
 Auto Melee - Tempoarily removes your aimkey and enables autoshoot when your melee is out <br />
-<img src="https://i.imgur.com/k3BPH7w.png">
+<img src="Screenshot.png">
 
 # Credits
 ### Direct Contributors
