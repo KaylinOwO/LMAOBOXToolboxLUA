@@ -42,7 +42,7 @@ function Misc.OnUnload()
     gui.SetValue("aim key", Misc.AimKey)
     gui.SetValue("auto shoot", Misc.AutoShoot)
 
-    client.SetConVar( "tf_viewmodels_offset_override", "0 0 0")
+    client.SetConVar( "tf_viewmodels_offset_override", "")
     client.SetConVar( "cl_wpn_sway_interp", 0)
 end
 

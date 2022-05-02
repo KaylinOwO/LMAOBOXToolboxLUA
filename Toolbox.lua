@@ -1,12 +1,14 @@
 local HasFramework,Framework = pcall(require, "ToolboxModules/Menu") 
 local HasChams,Chams = pcall(require, "ToolboxModules/Chams") 
 local HasMisc,Misc = pcall(require, "ToolboxModules/Misc")
+local HasCritIndicator,CritIndicator = pcall(require, "ToolboxModules/CritIndicator")
 
 local function unrequire(m) package.loaded[m] = nil _G[m] = nil end -- stackoverflow :D
 
 if (not(HasFramework)) then print("Menu module missing, failed to load Toolbox!") return end
 if (not(HasChams)) then print("Chams module missing, continuing without...") end
 if (not(HasMisc)) then print("Misc module missing, continuing without...") end
+if (not(HasCritIndicator)) then print("CritIndicator module missing, continuing without...") end
 
 ------------------------------------------------------------------------------ VARIABLES ------------------------------------------------------------------------------
 
@@ -25,7 +27,8 @@ Vars = {
     },
 
     Misc = {
-        AutoMelee = HasMisc and Menu:AddComponent(Framework.Checkbox("Auto Melee", true)) or false
+        AutoMelee = HasMisc and Menu:AddComponent(Framework.Checkbox("Auto Melee", true)) or false,
+        CritIndicatorToggle = HasCritIndicator and Menu:AddComponent(Framework.Checkbox("Crit Indicator", true)) or false
     }
 }
 
@@ -46,6 +49,7 @@ end
 
 local function DrawFunctions()
     if HasMisc then Misc.OnDraw(Vars) end
+    if HasCritIndicator then CritIndicator.OnDraw(pLocal, Vars) end
 end
 
 local function OnUnload() 
@@ -54,6 +58,7 @@ local function OnUnload()
     unrequire("ToolboxModules/Menu")
     if HasChams then unrequire("ToolboxModules/Chams") end
     if HasMisc then Misc.OnUnload() unrequire("ToolboxModules/Misc") end
+    if HasCritIndicator then unrequire("ToolboxModules/CritIndicator") end
 end
 
 ------------------------------------------------------------------------------ CALLBACKS ------------------------------------------------------------------------------
