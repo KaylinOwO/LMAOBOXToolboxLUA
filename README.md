@@ -8,8 +8,10 @@ Beware the menu code is a god awful mess for the time being.  <br />
 Chams Module - Contains Player & Hand Chams with 2 materials (Nitro & Shine), currently has performance problems. <br />
 Misc Module - Contains Viewmodel X/Y/Z/Sway modifiers and Auto Melee. <br />
 Crit Indicator Module - Contains a crit indicator based on Nitro's. Note that "Crit Ready" just means not crit banned for now. <br />
-<img src="Screenshot.png">
-<img src="Screenshot2.png">
+
+# Installation
+Extract Toolbox.lua and the ToolboxModules folder both into %LocalAppdata% (C:/Users/username/AppData/Local)
+You may delete any module you don't want from the ToolboxModules folder (except for the Menu module).
 
 # Credits
 ### Direct Contributors
@@ -20,3 +22,8 @@ ReD - Lead <br />
 spook953 <br />
 Lak3 <br />
 LNX <br />
+
+# Media
+
+<img src="Screenshot.png">
+<img src="Screenshot2.png">
