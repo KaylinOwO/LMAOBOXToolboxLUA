@@ -20,10 +20,10 @@ Vars = {
     Visuals = {
         PlayerChams = HasChams and Menu:AddComponent(Framework.Combo("Player Chams", ChamsTypes)) or 0,
         HandChams =  HasChams and Menu:AddComponent(Framework.Combo("Hand Chams", ChamsTypes)) or 0,
-        ViewmodelX = HasMisc and Menu:AddComponent(Framework.Slider("Viewmodel X", -50, 50, 0)) or false,
-        ViewmodelY = HasMisc and Menu:AddComponent(Framework.Slider("Viewmodel Y", -50, 50, 0)) or false,
-        ViewmodelZ = HasMisc and Menu:AddComponent(Framework.Slider("Viewmodel Z", -50, 50, 0)) or false,
-        ViewmodelSway = HasMisc and Menu:AddComponent(Framework.Slider("Viewmodel Sway", 0, 100, 0)) or false
+        ViewmodelX = HasMisc and Menu:AddComponent(Framework.Slider("Viewmodel X", -50, 50, 0)) or 0,
+        ViewmodelY = HasMisc and Menu:AddComponent(Framework.Slider("Viewmodel Y", -50, 50, 0)) or 0,
+        ViewmodelZ = HasMisc and Menu:AddComponent(Framework.Slider("Viewmodel Z", -50, 50, 0)) or 0,
+        ViewmodelSway = HasMisc and Menu:AddComponent(Framework.Slider("Viewmodel Sway", 0, 100, 0)) or 0
     },
 
     Misc = {
