@@ -4,11 +4,10 @@ Will be adding as much as we can think of/am capable of when we have the time to
 Beware the menu code is a god awful mess for the time being.  <br />
 **WARNING**: While I haven't tested it, I believe using VM X/Y/Z/Sway can get you banned from some community servers as it doesn't do any cvar spoofing.
 
-# Features
-Plyr & Hand Chams - Nitro material is a replication of old Nitro chams (example: https://youtu.be/aLLKpvHxZBQ). Shine material is a version that's...shiny... <br />
-VM X, Y, Z - Adjusts the viewmodel offset/position <br />
-VM Sway - Uses cl_wpn_sway_interp to adjust weapon sway <br />
-Auto Melee - Tempoarily removes your aimkey and enables autoshoot when your melee is out <br />
+# Modules
+Chams Module - Contains Player & Hand Chams with 2 materials (Nitro & Shine), currently has performance problems <br />
+Misc Module - Contains Viewmodel X/Y/Z/Sway modifiers and Auto Melee <br />
+Crit Indicator Module - Contains a crit indicator based on Nitro's <br />
 <img src="Screenshot.png">
 <img src="Screenshot2.png">
 
